@@ -20,7 +20,7 @@
   {"id":"know_07","category":"knowledge","input":"What is an evolving playbook?","expected_tools":["search_knowledge"],"expected_numbers":[],"required_terms":["knowledge","strategies"]},
   {"id":"know_08","category":"knowledge","input":"What are common metrics for evaluating agent performance?","expected_tools":["search_knowledge"],"expected_numbers":[],"required_terms":["latency","errors"]},
   {"id":"know_09","category":"knowledge","input":"How does GEPA use reflective feedback?","expected_tools":["search_knowledge"],"expected_numbers":[],"required_terms":["feedback","candidates"]},
-  {"id":"know_10","category":"knowledge","input":"Why should an agent use regression tests?","expected_tools":["search_knowledge"],"expected_numbers":[],"required_terms":["regression","improvements"]},
+  {"id": "know_10", "category": "knowledge", "input": "Using the local knowledge base, explain why regression testing is important when improving an AI agent.", "expected_tools": ["search_knowledge"], "expected_numbers": [], "required_terms": ["regression", "improvements"]},
 
   {"id":"combined_01","category":"combined","input":"Explain the three ACE components and calculate how many components there are multiplied by 10.","expected_tools":["search_knowledge","calculate"],"expected_numbers":["30"],"required_terms":["generator","reflector","curator"]},
   {"id":"combined_02","category":"combined","input":"Explain GEPA optimization and calculate 80 percent of 150.","expected_tools":["search_knowledge","calculate"],"expected_numbers":["120"],"required_terms":["optimization","feedback"]},

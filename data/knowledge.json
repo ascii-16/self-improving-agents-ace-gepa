@@ -11,5 +11,9 @@
   {
     "title": "Agent Evaluation",
     "content": "An agent should be evaluated using task success, correctness, tool selection accuracy, execution errors, latency and regression tests."
+  },
+  {
+    "title": "Agent Regression Testing",
+    "content": "Regression testing verifies that improvements to an AI agent do not break previously working capabilities. It evaluates new agent versions against established benchmarks, detects unintended behavioral changes, and ensures performance remains stable across tasks."
   }
 ]

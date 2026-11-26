@@ -34,12 +34,46 @@ def evaluate_task(
     output: str,
     actual_tools: list[str],
 ) -> dict:
+    """Score tool use and answer content against a task's expectations.
 
+    The returned metrics mean:
+    - ``tool_correct``: all expected tools were used and no unexpected tools
+      were used.
+    - ``tool_precision``: the fraction of distinct tools used that were
+      expected; ``0.0`` when no tools were used.
+    - ``tool_recall``: the fraction of expected tools that were used; ``1.0``
+      when the task expects no tools.
+    - ``answer_score``: the fraction of required terms found in the output,
+      ignoring case; ``1.0`` when no terms are required.
+    - ``number_score``: the fraction of expected numbers present among the
+      numbers extracted from the output; ``1.0`` when no numbers are expected.
+    - ``overall_score``: a weighted score with tool correctness contributing
+      40% and the mean of answer and number scores contributing 60%.
+    - ``success``: whether the overall score is at least ``0.8``.
+
+    The result also includes the matched and expected values, the extracted
+    numbers, and the original task/output details for inspection.
+    """
+
+    # Tool selection
     expected_tools = set(task["expected_tools"])
     actual_tools = set(actual_tools)
 
-    # Tool selection
-    tool_correct = expected_tools == actual_tools
+    required_tools_used = expected_tools.issubset(actual_tools)
+
+    unexpected_tools = actual_tools - expected_tools
+
+    tool_precision = (
+        len(expected_tools & actual_tools) / len(actual_tools)
+        if actual_tools else 0.0
+    )
+
+    tool_recall = (
+        len(expected_tools & actual_tools) / len(expected_tools)
+        if expected_tools else 1.0
+    )
+
+    tool_correct = required_tools_used and not unexpected_tools
 
     # Required answer terms
     normalized_output = output.lower()
@@ -84,6 +118,8 @@ def evaluate_task(
         "task_id": task["id"],
         "category": task["category"],
         "tool_correct": tool_correct,
+        "tool_precision": round(tool_precision, 3),
+        "tool_recall": round(tool_recall, 3),
         "answer_score": answer_score,
         "number_score": number_score,
         "overall_score": round(overall_score, 3),
