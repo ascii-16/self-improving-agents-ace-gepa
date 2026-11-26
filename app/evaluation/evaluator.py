@@ -3,10 +3,6 @@ import re
 from decimal import Decimal, InvalidOperation
 
 
-def normalize(text: str) -> str:
-    return re.sub(r"[\s,]", "", text.lower())
-
-
 def extract_numbers(text: str) -> list[Decimal]:
     """Extract numeric values from text."""
 
@@ -20,13 +16,69 @@ def extract_numbers(text: str) -> list[Decimal]:
 
     for match in re.findall(pattern, text):
         try:
-            numbers.append(
-                Decimal(match.replace(",", ""))
-            )
+            numbers.append(Decimal(match.replace(",", "")))
         except InvalidOperation:
             continue
 
     return numbers
+
+
+def evaluate_tools(policy: dict, actual_tools: list[str]) -> dict:
+    """Measure whether the tools used satisfy a task's tool policy.
+
+    ``required`` tools must all be used, ``optional`` tools may be used, and
+    ``forbidden`` tools must not be used. Any used tool not listed in one of
+    those groups is treated as unexpected. Inputs are converted to sets, so
+    repeated calls to the same tool count once in these measurements.
+
+    The result contains:
+    - ``compliant``: true only when no required tool is missing and no
+      forbidden or unexpected tool was used.
+    - ``precision``: the fraction of distinct used tools that are allowed
+      (required or optional). With no used tools, this is ``1.0`` if no tools
+      are required, otherwise ``0.0``.
+    - ``recall``: the fraction of required tools that were used, or ``1.0``
+      when the policy has no required tools.
+    - ``missing``, ``forbidden_used``, and ``unexpected``: sorted lists of
+      required tools not used, forbidden tools used, and unclassified tools
+      used, respectively.
+    """
+
+    required = set(policy.get("required", []))
+    optional = set(policy.get("optional", []))
+    forbidden = set(policy.get("forbidden", []))
+    actual = set(actual_tools)
+
+    allowed = required | optional
+
+    missing = required - actual
+    forbidden_used = forbidden & actual
+    unexpected = actual - allowed - forbidden
+
+    tool_precision = (
+        len(actual & allowed) / len(actual)
+        if actual else (0.0 if required else 1.0)
+    )
+
+    tool_recall = (
+        len(required & actual) / len(required)
+        if required else 1.0
+    )
+
+    compliant = (
+        not missing
+        and not forbidden_used
+        and not unexpected
+    )
+
+    return {
+        "compliant": compliant,
+        "precision": round(tool_precision, 3),
+        "recall": round(tool_recall, 3),
+        "missing": sorted(missing),
+        "forbidden_used": sorted(forbidden_used),
+        "unexpected": sorted(unexpected),
+    }
 
 
 def evaluate_task(
@@ -34,46 +86,29 @@ def evaluate_task(
     output: str,
     actual_tools: list[str],
 ) -> dict:
-    """Score tool use and answer content against a task's expectations.
+    """Score one agent response against its benchmark task.
 
-    The returned metrics mean:
-    - ``tool_correct``: all expected tools were used and no unexpected tools
-      were used.
-    - ``tool_precision``: the fraction of distinct tools used that were
-      expected; ``0.0`` when no tools were used.
-    - ``tool_recall``: the fraction of expected tools that were used; ``1.0``
-      when the task expects no tools.
-    - ``answer_score``: the fraction of required terms found in the output,
-      ignoring case; ``1.0`` when no terms are required.
-    - ``number_score``: the fraction of expected numbers present among the
-      numbers extracted from the output; ``1.0`` when no numbers are expected.
-    - ``overall_score``: a weighted score with tool correctness contributing
-      40% and the mean of answer and number scores contributing 60%.
-    - ``success``: whether the overall score is at least ``0.8``.
+    Tool usage is evaluated by ``evaluate_tools`` using the task's
+    ``tool_policy``. Required answer terms are matched case-insensitively as
+    substrings of the output, and expected numbers are matched against
+    numbers extracted from the output.
 
-    The result also includes the matched and expected values, the extracted
-    numbers, and the original task/output details for inspection.
+    ``answer_score`` and ``number_score`` are the fractions of required terms
+    and expected numbers matched, respectively; each defaults to ``1.0`` when
+    its expectation list is empty. Their mean forms ``content_score``.
+    ``overall_score`` weights tool-policy compliance at 40% and content at
+    60%, and ``success`` is true when that score is at least ``0.8``.
+
+    The returned dictionary includes these scores, the matched terms and
+    numbers, tool-policy diagnostics, the distinct tools used, and the
+    original task and output identifiers/details.
     """
 
-    # Tool selection
-    expected_tools = set(task["expected_tools"])
-    actual_tools = set(actual_tools)
-
-    required_tools_used = expected_tools.issubset(actual_tools)
-
-    unexpected_tools = actual_tools - expected_tools
-
-    tool_precision = (
-        len(expected_tools & actual_tools) / len(actual_tools)
-        if actual_tools else 0.0
+    # Tool evaluation
+    tool_result = evaluate_tools(
+        task.get("tool_policy", {}),
+        actual_tools,
     )
-
-    tool_recall = (
-        len(expected_tools & actual_tools) / len(expected_tools)
-        if expected_tools else 1.0
-    )
-
-    tool_correct = required_tools_used and not unexpected_tools
 
     # Required answer terms
     normalized_output = output.lower()
@@ -92,42 +127,48 @@ def evaluate_task(
 
     # Numeric correctness
     expected_numbers = task.get("expected_numbers", [])
-
     actual_numbers = extract_numbers(output)
 
-    matched_numbers = []
-
-    for expected in expected_numbers:
-        if Decimal(expected) in actual_numbers:
-            matched_numbers.append(expected)
+    matched_numbers = [
+        expected
+        for expected in expected_numbers
+        if Decimal(expected) in actual_numbers
+    ]
 
     number_score = (
         len(matched_numbers) / len(expected_numbers)
         if expected_numbers else 1.0
     )
 
-    # Combine scores
+    # Combined scoring
     content_score = (answer_score + number_score) / 2
 
     overall_score = (
-        0.4 * float(tool_correct)
+        0.4 * float(tool_result["compliant"])
         + 0.6 * content_score
     )
 
     return {
         "task_id": task["id"],
         "category": task["category"],
-        "tool_correct": tool_correct,
-        "tool_precision": round(tool_precision, 3),
-        "tool_recall": round(tool_recall, 3),
-        "answer_score": answer_score,
-        "number_score": number_score,
+
+        "tool_correct": tool_result["compliant"],
+        "tool_precision": tool_result["precision"],
+        "tool_recall": tool_result["recall"],
+        "tool_evaluation": tool_result,
+
+        "answer_score": round(answer_score, 3),
+        "number_score": round(number_score, 3),
+
         "overall_score": round(overall_score, 3),
         "success": overall_score >= 0.8,
+
         "matched_terms": matched_terms,
         "matched_numbers": matched_numbers,
         "actual_numbers": [str(n) for n in actual_numbers],
-        "expected_tools": sorted(expected_tools),
-        "actual_tools": sorted(actual_tools),
+
+        "tool_policy": task.get("tool_policy", {}),
+        "actual_tools": sorted(set(actual_tools)),
+
         "output": output,
     }
