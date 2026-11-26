@@ -1,0 +1,15 @@
+
+[
+  {
+    "title": "Agentic Context Engineering",
+    "content": "ACE uses a Generator, Reflector and Curator to evolve an agent's context through accumulated experience. It maintains an evolving playbook of strategies, knowledge and lessons."
+  },
+  {
+    "title": "GEPA Optimization",
+    "content": "GEPA uses reflective feedback and evolutionary search to optimize prompts and agent configurations. It evaluates candidates and uses Pareto-based selection to preserve diverse high-performing solutions."
+  },
+  {
+    "title": "Agent Evaluation",
+    "content": "An agent should be evaluated using task success, correctness, tool selection accuracy, execution errors, latency and regression tests."
+  }
+]
