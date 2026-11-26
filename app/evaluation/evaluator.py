@@ -1,15 +1,32 @@
 
 import re
+from decimal import Decimal, InvalidOperation
 
 
 def normalize(text: str) -> str:
     return re.sub(r"[\s,]", "", text.lower())
 
 
-def contains_number(output: str, number: str) -> bool:
-    normalized = output.replace(",", "")
-    pattern = rf"(?<![\d.]){re.escape(number)}(?![\d.])"
-    return re.search(pattern, normalized) is not None
+def extract_numbers(text: str) -> list[Decimal]:
+    """Extract numeric values from text."""
+
+    pattern = (
+        r"(?<![\w.])"
+        r"[-+]?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?"
+        r"(?![\w.])"
+    )
+
+    numbers = []
+
+    for match in re.findall(pattern, text):
+        try:
+            numbers.append(
+                Decimal(match.replace(",", ""))
+            )
+        except InvalidOperation:
+            continue
+
+    return numbers
 
 
 def evaluate_task(
@@ -42,19 +59,20 @@ def evaluate_task(
     # Numeric correctness
     expected_numbers = task.get("expected_numbers", [])
 
-    normalized = normalize(output)
+    actual_numbers = extract_numbers(output)
 
-    matched_numbers = [
-        number for number in expected_numbers
-        if contains_number(output, number)
-    ]
+    matched_numbers = []
+
+    for expected in expected_numbers:
+        if Decimal(expected) in actual_numbers:
+            matched_numbers.append(expected)
 
     number_score = (
         len(matched_numbers) / len(expected_numbers)
         if expected_numbers else 1.0
     )
 
-    # Combine semantic and numeric checks
+    # Combine scores
     content_score = (answer_score + number_score) / 2
 
     overall_score = (
@@ -72,6 +90,7 @@ def evaluate_task(
         "success": overall_score >= 0.8,
         "matched_terms": matched_terms,
         "matched_numbers": matched_numbers,
+        "actual_numbers": [str(n) for n in actual_numbers],
         "expected_tools": sorted(expected_tools),
         "actual_tools": sorted(actual_tools),
         "output": output,
