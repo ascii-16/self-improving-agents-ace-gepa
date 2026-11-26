@@ -18,19 +18,21 @@ def get_new_trace_events(offset: int) -> list[dict]:
     if not TRACE_PATH.exists():
         return []
 
-    with TRACE_PATH.open() as file:
+    with TRACE_PATH.open("rb") as file:
         file.seek(offset)
         lines = file.readlines()
 
     return [
-        json.loads(line)
+        json.loads(line.decode("utf-8"))
         for line in lines
         if line.strip()
     ]
 
 
-def run_benchmarks():
-
+def run_benchmarks(
+    output_path: Path = RESULT_PATH,
+    experiment_name: str = "baseline",
+):
     tasks = json.loads(BENCHMARK_PATH.read_text())
 
     results = []
@@ -87,23 +89,24 @@ def run_benchmarks():
     metrics = calculate_metrics(results)
 
     report = {
-        "experiment": "baseline",
+        "experiment": experiment_name,
         "model": "qwen3.5:4b",
         "metrics": metrics,
         "results": results,
     }
 
-    RESULT_PATH.parent.mkdir(
+    output_path.parent.mkdir(
         parents=True,
         exist_ok=True
     )
 
-    RESULT_PATH.write_text(
+    output_path.write_text(
         json.dumps(report, indent=2)
     )
 
-    print("\n========== BASELINE RESULTS ==========")
+    print(f"\n========== {experiment_name.upper()} RESULTS ==========")
     print(json.dumps(metrics, indent=2))
+    print(f"\nReport saved to: {output_path}")
 
     return report
 
