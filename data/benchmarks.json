@@ -1,0 +1,35 @@
+
+[
+  {"id":"calc_01","category":"calculator","input":"What is 125 multiplied by 48 plus 200?","expected_tools":["calculate"],"expected_numbers":["6200"],"required_terms":[]},
+  {"id":"calc_02","category":"calculator","input":"Calculate 144 divided by 12.","expected_tools":["calculate"],"expected_numbers":["12"],"required_terms":[]},
+  {"id":"calc_03","category":"calculator","input":"What is 35 squared?","expected_tools":["calculate"],"expected_numbers":["1225"],"required_terms":[]},
+  {"id":"calc_04","category":"calculator","input":"Calculate 999 plus 1001.","expected_tools":["calculate"],"expected_numbers":["2000"],"required_terms":[]},
+  {"id":"calc_05","category":"calculator","input":"What is 250 multiplied by 16?","expected_tools":["calculate"],"expected_numbers":["4000"],"required_terms":[]},
+  {"id":"calc_06","category":"calculator","input":"Calculate 1000 minus 375.","expected_tools":["calculate"],"expected_numbers":["625"],"required_terms":[]},
+  {"id":"calc_07","category":"calculator","input":"What is 81 divided by 9 plus 11?","expected_tools":["calculate"],"expected_numbers":["20"],"required_terms":[]},
+  {"id":"calc_08","category":"calculator","input":"Calculate 17 multiplied by 19.","expected_tools":["calculate"],"expected_numbers":["323"],"required_terms":[]},
+  {"id":"calc_09","category":"calculator","input":"What is 5000 divided by 25?","expected_tools":["calculate"],"expected_numbers":["200"],"required_terms":[]},
+  {"id":"calc_10","category":"calculator","input":"Calculate 2 to the power of 10.","expected_tools":["calculate"],"expected_numbers":["1024"],"required_terms":[]},
+
+  {"id":"know_01","category":"knowledge","input":"What are the three components of ACE?","expected_tools":["search_knowledge"],"expected_numbers":[],"required_terms":["generator","reflector","curator"]},
+  {"id":"know_02","category":"knowledge","input":"How does ACE improve an agent's context?","expected_tools":["search_knowledge"],"expected_numbers":[],"required_terms":["playbook","strategies"]},
+  {"id":"know_03","category":"knowledge","input":"Explain the purpose of GEPA.","expected_tools":["search_knowledge"],"expected_numbers":[],"required_terms":["optimization","prompts"]},
+  {"id":"know_04","category":"knowledge","input":"What is Pareto-based selection used for in GEPA?","expected_tools":["search_knowledge"],"expected_numbers":[],"required_terms":["pareto","solutions"]},
+  {"id":"know_05","category":"knowledge","input":"What should an agent evaluation measure?","expected_tools":["search_knowledge"],"expected_numbers":[],"required_terms":["success","accuracy"]},
+  {"id":"know_06","category":"knowledge","input":"What is the role of a Reflector in ACE?","expected_tools":["search_knowledge"],"expected_numbers":[],"required_terms":["reflector","execution"]},
+  {"id":"know_07","category":"knowledge","input":"What is an evolving playbook?","expected_tools":["search_knowledge"],"expected_numbers":[],"required_terms":["knowledge","strategies"]},
+  {"id":"know_08","category":"knowledge","input":"What are common metrics for evaluating agent performance?","expected_tools":["search_knowledge"],"expected_numbers":[],"required_terms":["latency","errors"]},
+  {"id":"know_09","category":"knowledge","input":"How does GEPA use reflective feedback?","expected_tools":["search_knowledge"],"expected_numbers":[],"required_terms":["feedback","candidates"]},
+  {"id":"know_10","category":"knowledge","input":"Why should an agent use regression tests?","expected_tools":["search_knowledge"],"expected_numbers":[],"required_terms":["regression","improvements"]},
+
+  {"id":"combined_01","category":"combined","input":"Explain the three ACE components and calculate how many components there are multiplied by 10.","expected_tools":["search_knowledge","calculate"],"expected_numbers":["30"],"required_terms":["generator","reflector","curator"]},
+  {"id":"combined_02","category":"combined","input":"Explain GEPA optimization and calculate 80 percent of 150.","expected_tools":["search_knowledge","calculate"],"expected_numbers":["120"],"required_terms":["optimization","feedback"]},
+  {"id":"combined_03","category":"combined","input":"What metrics are used in agent evaluation? Calculate the sum of 25 and 75.","expected_tools":["search_knowledge","calculate"],"expected_numbers":["100"],"required_terms":["success","accuracy"]},
+  {"id":"combined_04","category":"combined","input":"Explain ACE's playbook and calculate 12 squared.","expected_tools":["search_knowledge","calculate"],"expected_numbers":["144"],"required_terms":["playbook","strategies"]},
+  {"id":"combined_05","category":"combined","input":"What is GEPA's role in prompt optimization? Calculate 250 divided by 5.","expected_tools":["search_knowledge","calculate"],"expected_numbers":["50"],"required_terms":["optimization","prompts"]},
+  {"id":"combined_06","category":"combined","input":"Explain why regression testing matters for agents and calculate 45 multiplied by 4.","expected_tools":["search_knowledge","calculate"],"expected_numbers":["180"],"required_terms":["regression","evaluation"]},
+  {"id":"combined_07","category":"combined","input":"Explain the ACE Generator and calculate 1000 minus 250.","expected_tools":["search_knowledge","calculate"],"expected_numbers":["750"],"required_terms":["generator","strategies"]},
+  {"id":"combined_08","category":"combined","input":"Describe Pareto selection in GEPA and calculate 16 multiplied by 16.","expected_tools":["search_knowledge","calculate"],"expected_numbers":["256"],"required_terms":["pareto","solutions"]},
+  {"id":"combined_09","category":"combined","input":"Explain the importance of execution errors in agent evaluation and calculate 90 divided by 3.","expected_tools":["search_knowledge","calculate"],"expected_numbers":["30"],"required_terms":["errors","evaluation"]},
+  {"id":"combined_10","category":"combined","input":"Explain how reflective feedback helps GEPA and calculate 125 multiplied by 8.","expected_tools":["search_knowledge","calculate"],"expected_numbers":["1000"],"required_terms":["feedback","candidates"]}
+]
